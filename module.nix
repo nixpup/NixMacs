@@ -10,6 +10,17 @@ let
     substitute ${./config/e.org} $out \
       --replace "~/Pictures/nix_emacs_logo_small.png" "${logoImage}"
   '';
+
+  hoon-mode =  pkgs.emacsPackages.trivialBuild {
+    pname = "hoon-mode";
+    version = "latest"
+    src = pkgs.fetchFromGitHub {
+      owner = "urbit";
+      repo = "hoon-mode.el";
+      rev = "main";
+      sha256 = "sha256-gOmh3+NxAIUa2VcmFFqavana8r6LT9VmnrJOFLCF/xw=";
+    };
+  };
   
   # Create the configured Emacs with packages FIRST
   configuredEmacs = pkgs.emacs.pkgs.withPackages (epkgs: with epkgs; [
@@ -38,6 +49,7 @@ let
     bongo
     impatient-mode
     simple-httpd
+    hoon-mode
   ] ++ (cfg.extraPackages epkgs));
   
   # Then create wrapper that references it
