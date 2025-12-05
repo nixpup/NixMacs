@@ -102,9 +102,8 @@ Configure auto-suggestions for the Rust programming language.
 *** Hoon Mode and Recognition
 Set up Hoon syntax highlighting with hoon-mode and the included rune dictionary.
 #+BEGIN_SRC emacs-lisp
-  ;;(with-eval-after-load 'package  
-  ;;  (unless (package-installed-p 'hoon-mode)
-  ;;    (package-vc-install "https://github.com/urbit/hoon-mode.el.git")))
+  (require 'hoon-mode)
+  (add-to-list 'auto-mode-alist '("\\.hoon\\'" . hoon-mode))
   (with-eval-after-load 'hoon-mode
     (require 'hoon-mode)
     (add-hook 'hoon-mode-hook
