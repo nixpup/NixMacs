@@ -1,0 +1,657 @@
+#+TITLE: Emacs Configuration
+#+AUTHOR: nixpup
+#+DATE: 2025-10-27
+#+OPTIONS: num:nil
+#+LATEX_COMPILER: xelatex
+#+LATEX_HEADER: \usepackage{fontspec}
+#+LATEX_HEADER: \usepackage{xcolor}
+#+LATEX_HEADER: \usepackage{pagecolor}
+#+LATEX_HEADER: \usepackage[margin=0.3in]{geometry}
+#+LATEX_HEADER: \usepackage{listings}
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \setmainfont{DejaVu Sans Mono}
+#+LATEX_HEADER: \definecolor{bgcolor}{HTML}{1D1F21}
+#+LATEX_HEADER: \definecolor{fgcolor}{HTML}{FFFFFF}
+#+LATEX_HEADER: \pagecolor{bgcolor}
+#+LATEX_HEADER: \AtBeginDocument{\color{fgcolor}}
+#+LATEX_HEADER: \colorlet{normalcolor}{fgcolor}
+* Introduction
+This .e.org File is a complete Emacs configuration setup with auto-completion and suggestion, org-mode defaults, snippets, sane keybinds, and a nice theme. In order to use this configuration file you need two things:
+ 1. This .e.org file inside your $HOME (/home/<USERNAME>) directory.
+ 2. A .emacs file with the following contents inside your $HOME (/home/<USERNAME>) directory:
+    #+BEGIN_EXAMPLE
+    (let ((orgfile "~/.e.org")                      
+          (elfile "~/.e.el"))                       
+      (when (or (not (file-exists-p elfile))        
+            (require 'org)                          
+            (org-babel-tangle-file orgfile elfile)) 
+          (load-file elfile))
+    #+END_EXAMPLE
+...if you provided these two files, your fresh new Emacs should be ready to go and begin by automatically installing all the packages you need. After this process is done, you may need to restart Emacs once.                       
+* Packages and Related
+** Define Packages
+If this is the first time this configuration is used, and the automatic package installation didn't work, run ~M-x package-install-selected-packages~.
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes '(sanityinc-tomorrow-night))
+ '(custom-safe-themes
+   '("6fc9e40b4375d9d8d0d9521505849ab4d04220ed470db0b78b700230da0a86c1"
+     default))
+ '(package-selected-packages
+   '(color-theme-sanityinc-tomorrow company emms fancy-dabbrev lsp-mode
+				    lsp-ui markdown-mode multi-term
+				    multiple-cursors nix-buffer
+				    nix-mode rainbow-mode rust-mode
+				    rustic wttrin hydra all-the-icons haskell-mode arduino-mode flycheck gruvbox-theme bongo)))
+#+END_SRC
+** Automatically Install Packages
+This function should ideally automatically install all required packages for you into your emacs setup.
+#+BEGIN_SRC emacs-lisp
+  (defun my/ensure-selected-packages-installed ()
+  "Install missing packages from `package-selected-packages` without refreshing every time."
+  (unless (cl-every #'package-installed-p package-selected-packages)
+    (message "Refreshing package contents...")
+    (package-refresh-contents)
+    (package-install-selected-packages :noconfirm)))
+
+  (my/ensure-selected-packages-installed)
+#+END_SRC
+** Colorscheme and Font Size
+Setup the colorscheme and the font size.
+#+BEGIN_SRC emacs-lisp
+  (custom-set-faces
+         ;; Add custom faces here.
+   )
+  ;;(require 'color-theme-sanityinc-tomorrow)
+  ;;(color-theme-sanityinc-tomorrow-night)
+
+  (load-theme 'gruvbox-dark-medium t)
+  (set-face-attribute 'default nil :height 125)
+#+END_SRC
+** Fancy Dabbrev (Simple Auto-Completion)
+Enable a simple for of auto-completion preview using fancy dabbrev.
+#+BEGIN_SRC emacs-lisp
+(require 'fancy-dabbrev)
+(global-fancy-dabbrev-mode)
+(global-set-key (kbd "TAB") 'fancy-dabbrev-expand)
+(global-set-key (kbd "<backtab>") 'fancy-dabbrev-backward)
+#+END_SRC
+** Company and Auto-Suggestions
+This Chapter sets up auto-suggestions for various programming languages, and a language server connection.
+** HTML Live-Reload and Server
+#+BEGIN_SRC emacs-lisp
+    (use-package simple-httpd
+      :ensure t)
+    (use-package impatient-mode
+      :ensure t)
+  (defun my/html-live-preview ()
+  "Start local HTTP server, enable impatient-mode, and open preview in browser."
+  (interactive)
+  (httpd-start)
+  (impatient-mode 1)
+  ;; Open browser tab with the impatient-mode preview URL
+  (browse-url "http://localhost:8080/imp/")
+  (message "🌐 Live preview opened at http://localhost:8080/imp/"))
+
+(defun my/html-bind-live-preview-key ()
+  "Bind Ctrl+Shift+L to `my/html-live-preview` in HTML buffers only."
+  (local-set-key (kbd "C-S-l") #'my/html-live-preview))
+
+(add-hook 'html-mode-hook #'my/html-bind-live-preview-key)
+;; If you use web-mode, use this instead:
+;; (add-hook 'web-mode-hook #'my/html-bind-live-preview-key)
+#+END_SRC
+*** Company
+Set up a basic version of company.
+#+BEGIN_SRC emacs-lisp
+(require 'company)
+(global-company-mode 1)
+(setq company-idle-delay 0.1
+      company-minimum-prefix-length 1)
+#+END_SRC
+*** Rust LSP Mode
+Configure auto-suggestions for the Rust programming language.
+#+BEGIN_SRC emacs-lisp
+(require 'lsp-mode)
+(setq lsp-completion-provider :capf)
+(add-hook 'rust-mode-hook #'lsp)
+(add-hook 'rust-mode-hook
+	  (lambda ()
+	    (setq-local company-backends '(company-capf))))
+(add-hook 'rustic-mode-hook #'lsp)
+(add-hook 'rustic-mode-hook
+          (lambda ()
+            (setq-local company-backends '(company-capf))))
+(require 'lsp-ui)
+(add-hook 'lsp-mode-hook 'lsp-ui-mode)
+;;(setq lsp-rust-analyzer-server-command '("rust-analyzer"))
+(require 'rustic)
+(setq rustic-lsp-client 'lsp-mode)
+#+END_SRC
+*** Hoon Mode and Recognition
+Set up Hoon syntax highlighting with hoon-mode and the included rune dictionary.
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'package  
+    (unless (package-installed-p 'hoon-mode)
+      (package-vc-install "https://github.com/urbit/hoon-mode.el.git")))
+  (with-eval-after-load 'hoon-mode
+    (require 'hoon-mode)
+    (add-hook 'hoon-mode-hook
+              (lambda ()
+                (define-key hoon-mode-map (kbd "C-c r") 'hoon-eval-region-in-herb)
+                (define-key hoon-mode-map (kbd "C-c b") 'hoon-eval-buffer-in-herb))))
+    (add-to-list 'auto-mode-alist '("\\.hoon\\'" . hoon-mode))
+#+END_SRC
+*** Nix Recognition
+Recognize and highlight Nix/NixOS files.
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
+#+END_SRC
+*** Arduino Recognition
+Recognize and highlight Arduino Code.
+#+BEGIN_SRC emacs-lisp
+  (global-flycheck-mode +1)
+  (add-to-list 'auto-mode-alist '("\\.ino\\'" . arduino-mode))
+#+END_SRC
+*** Markdown Recognition
+Recognize and highlight Markdown files.
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+#+END_SRC
+*** Haskell Recognition
+Recognize and hightlight Haskell files.
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.hs\\'" . haskell-mode))
+#+END_SRC
+* General Settings
+In this chapter we are setting up some sane defaults and useful options for Emacs.
+** Fix potential Cursor Lag
+This is optional and I have not noticed its effect yet, but supposedly this option can fix cursor lag if it exists.
+#+BEGIN_SRC emacs-lisp
+(setq auto-window-vscroll nil)
+#+END_SRC
+** Enable Line Numbers
+Enable basic line numbers for more comfortable editing.
+#+BEGIN_SRC emacs-lisp
+(global-display-line-numbers-mode 1)
+#+END_SRC
+** Disable Bell Sound
+This disables the annoying water droplet bell sound when you backspace without any text left.
+#+BEGIN_SRC emacs-lisp
+(setq ring-bell-function 'ignore)
+#+END_SRC
+** Disable various Bars
+Disable all the annoying default bars enabled by emacs.
+#+BEGIN_SRC emacs-lisp
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+#+END_SRC
+** Enable Hex-Color Preview
+This allows emacs to preview you hex colors like #FBFB01 or #82ABCD inline right when you're typing.
+#+BEGIN_SRC emacs-lisp
+(define-globalized-minor-mode my-global-rainbow-mode rainbow-mode
+  (lambda () (rainbow-mode 1)))
+(my-global-rainbow-mode 1)
+#+END_SRC
+** Stop creating Backup Files
+Disable backup file creation.
+#+BEGIN_SRC emacs-lisp
+(setq make-backup-files nil)
+#+END_SRC
+** Show Org-Mode Images Inline
+This option lets you visually see images you insert while in org-mode.
+#+BEGIN_SRC emacs-lisp
+(setq org-startup-with-inline-images t)
+#+END_SRC
+** Org Javascript Support
+#+BEGIN_SRC emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((js . t)))
+#+END_SRC
+** Org to PDF Export
+This function allows you to press Ctrl+Shift+e to export any currently opened org document to PDF.
+#+BEGIN_SRC emacs-lisp
+  (defun my/org-export-to-pdf ()
+    (interactive)
+    (let ((pdf-file (org-latex-export-to-pdf)))
+      (when (and pdf-file (file-exists-p pdf-file))
+        (start-process "open-pdf" nil "zathura" pdf-file))))
+  (define-key org-mode-map (kbd "C-E") 'my/org-export-to-pdf)
+#+END_SRC
+** Org Snippets to Insert
+Here are a few basic useful org and LaTeX snippets that you can insert inside any org document.
+*** Insert Wrapfigure
+#+BEGIN_SRC emacs-lisp
+  (defun my/insert-wrapfigure ()
+    (interactive)
+    (insert
+     "#+BEGIN_LaTeX\n"
+     "\\begin{wrapfigure}{r}{0.4\\textwidth}\n"
+     "  \\includegraphics[width=0.4\\textwidth]{/home/puppy/Pictures/nix_emacs_logo_small.png}\n"
+     "\\end{wrapfigure}\n"
+     "#+END_LaTeX\n"))
+#+END_SRC
+*** Insert Example Document
+#+BEGIN_SRC emacs-lisp
+  (defun my/insert-example-document ()
+    (interactive)
+    (insert
+     "#+TITLE: Title\n"
+     "#+AUTHOR: Author\n"
+     "#+DESCRIPTION: Description\n"
+     "* Chapters\n"
+     "** Chapter 1\n"
+     "*** Subchapter 1\n"))
+#+END_SRC
+*** Insert Figure Block
+#+BEGIN_SRC emacs-lisp
+    (defun my/insert-figure-block ()
+      (interactive)
+      (insert "#+CAPTION: \n#+NAME: \n[[file:]]")
+      (backward-char 2))
+#+END_SRC
+*** Insert Code Block
+#+BEGIN_SRC emacs-lisp
+    (defun my/insert-code-block ()
+      (interactive)
+      (insert "#+BEGIN_SRC language\n\n#+END_SRC\n")
+      (previous-line)
+      (previous-line))
+#+END_SRC
+*** Insert Table Skeleton
+#+BEGIN_SRC emacs-lisp
+  (defun my/insert-table-skeleton ()
+    (interactive)
+    (insert "\\begin{tabular}{|c|c|}\n\\hline\n & \\\\\n\\hline\n & \\\\\n\\hline\n\\end{tabular}"))
+#+END_SRC
+** Tab Bar
+Here we set up the tab bar for using tabs inside emacs.
+#+BEGIN_SRC emacs-lisp
+  (tab-bar-mode 1)
+  (setq tab-bar-show 1)
+  (setq tab-bar-new-tab-button-show nil)
+  (setq tab-bar-close-button-show nil)
+
+  ;; Tab bar background (overall bar)
+  (set-face-attribute 'tab-bar nil
+                      :height 0.5
+                      :box nil)
+
+  ;; Active tab
+  (set-face-attribute 'tab-bar-tab nil
+                      :box '(:line-width 1 :color "#282828")
+                      :weight 'normal)
+
+  ;; Inactive tabs
+  (set-face-attribute 'tab-bar-tab-inactive nil
+                      :box '(:line-width 1 :color "#1d1f21")
+                      :weight 'normal)
+
+  ;; Optional: change height of tab bar
+  (set-face-attribute 'tab-bar nil :height 1.0)
+
+  (global-set-key (kbd "C-c t") #'tab-bar-new-tab)
+  (global-set-key (kbd "C-c w") #'tab-bar-close-tab)
+  (global-set-key (kbd "C-c <tab>") #'tab-bar-switch-to-next-tab)
+  (global-set-key (kbd "C-c <backtab>") #'tab-bar-switch-to-prev-tab)
+  (defun my/tab-bar-toggle ()
+  "Toggle the visibility of the Emacs tab-bar."
+  (interactive)
+  (if (or (eq tab-bar-show 1) (eq tab-bar-show t))
+      (setq tab-bar-show 0)   ;; hide tab-bar
+    (setq tab-bar-show 1))    ;; show tab-bar
+  ;; Force redraw
+  (tab-bar-mode 1))
+  ;; Bind it globally
+  (global-set-key (kbd "C-c h") #'my/tab-bar-toggle)
+#+END_SRC
+* Extra Programs
+** ERC Configuration
+This configures the ERC IRC client, change these values such as erc-nick and erc-server as you please.
+#+BEGIN_SRC emacs-lisp
+(setq erc-server "irc.libera.chat"
+      erc-nick "nixpup"
+      erc-user-full-name "nixpup"
+      erc-track-shorten-start 8
+      erc-autojoin-channels-alist '(("irc.libera.chat" "#nixos"))
+      erc-kill-buffer-on-part t
+      erc-auto-query 'bury)
+#+END_SRC
+** Bongo Configuration
+#+BEGIN_SRC emacs-lisp
+      (use-package bongo
+        :ensure t
+        :commands (bongo-playlist bongo-library)
+        :config
+        (setq bongo-default-browser-function 'bongo-dired-browser))
+      (setq bongo-enabled-backends '(mpv))
+      (setq bongo-default-backend 'mpv)
+      (setq bongo-mpv-program "mpv"
+          bongo-mpv-default-options '("--no-video"))
+    (defun my-bongo-autoload-directory ()
+    (when (and (eq major-mode 'bongo-playlist-mode)
+               (= (buffer-size) 0))
+      (bongo-insert-directory "~/Music")))
+  (add-hook 'bongo-playlist-mode-hook #'my-bongo-autoload-directory)
+#+END_SRC
+** EMMS Configuration
+Now we set up EMMS to listen to music inside of emacs.
+#+BEGIN_SRC emacs-lisp
+(emms-all)
+(setq emms-player-list '(emms-player-mpv)
+      emms-info-functions '(emms-info-native
+			    emms-info-ogginfo))
+(emms-add-directory-tree "~/Music/")
+(global-set-key (kbd "C-c m") 'emms-browser)
+(dolist (binding '(("p" . emms-browser-add-tracks-and-play)
+		   ("RET" . emms-browser-add-tracks-and-play)
+		   ("P" . emms-pause)
+		   ("N" . emms-next)
+		   ("B" . emms-previous)))
+  (define-key emms-browser-mode-map (kbd (car binding)) (cdr binding)))
+(emms-mode-line 1)
+(setq emms-mode-line-format "♫ %s")
+#+END_SRC
+** Multiple Cursors
+Enable multiple cursors when pressing Ctrl+Shift+> and other keybinds to edit multiple lines at once.
+#+BEGIN_SRC emacs-lisp
+(require 'multiple-cursors)
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+(defun mc/backspace ()
+  "Backspace that works with multiple cursors."
+  (interactive)
+  (if multiple-cursors-mode
+      (mc/execute-command-for-all-cursors 'backward-delete-char-untabify)
+    (call-interactively 'backward-delete-char-untabify)))
+;; Fix Tab
+(defun my/fancy-dabbrev-tab ()
+  "Expand with fancy-dabbrev on TAB."
+  (global-set-key (kbd "TAB") 'fancy-dabbrev-expand))
+(add-hook 'prog-mode-hook 'my/fancy-dabbrev-tab)
+(add-hook 'text-mode-hook 'my/fancy-dabbrev-tab)
+(global-set-key (kbd "TAB") 'fancy-dabbrev-expand)
+(setq ffap-bindings nil)
+(define-key mc/keymap (kbd "DEL") 'mc/backspace)
+#+END_SRC
+** Image Dired
+This enables image perviews inside dired using image-dired when launched.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x D") 'image-dired)
+(global-set-key (kbd "C-I") 'image-dired-dired-display-image)
+#+END_SRC
+** Interactive Buffer List
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x B") 'ibuffer)
+#+END_SRC
+** Splash and Application Screen
+Here is the setup for the splash screen every time you start up emacs, and the included application launcher. 
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-splash-screen t)
+  (setq inhibit-startup-message t)
+  (setq initial-scratch-message nil)
+
+  (defvar apps-buffer nil "Application Menu")
+  (defun application-buffer ()
+    (setq apps-buffer (get-buffer-create "*apps*"))
+    (with-current-buffer apps-buffer
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (let* ((window-width (window-width))
+               (window-height (window-height))
+               (vertical-offset (/ window-height 6)))
+          (insert (make-string vertical-offset ?\n))
+          (when (display-graphic-p)
+            (let ((image (create-image "~/Pictures/nix_emacs_logo_small.png" nil nil :ascent 'center)))
+              (when image
+                (let* ((image-width (round (car (image-size image))))
+                       (padding (make-string (max 0 (/ (- window-width image-width) 2)) ?\ )))
+                  (insert padding)
+                  (insert-image image)
+                  (insert "\n\n")))))
+          (let* ((text " Applications  \n")
+                 (text-width (length text))
+                 (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
+            (insert padding text "\n"))
+          (let* ((lists '(("m" "EMMS")
+                          ("i" "i3 configuration file")
+                          ("e" "emacs configuration file")
+                          ("n" "nixos configuration file")
+                          ("x" "xmonad configuration file")
+                          ("p" "polybar configuration file")
+                          ("h" "home-manager configuration file")
+  			  ("q" "quit emacs"))))
+  	  (dolist (item lists)
+              (let* ((key (car item))
+                     (desc (cadr item))
+                     (line (format "%s => %s" key desc))
+                     (padding (make-string (max 0 (/ (- window-width (length line)) 2)) ?\ )))
+                (insert padding line "\n"))))
+          (insert "\n\n")
+          (let* ((instruction "Press b to go back...")
+                 (instruction-width (length instruction))
+                 (padding (make-string (max 0 (/ (- window-width instruction-width) 2)) ?\ )))
+            (insert padding instruction))))
+      (setq buffer-read-only t)
+      (goto-char (point-min))
+      ;; Setup keybindings inside the buffer context
+      (local-set-key (kbd "b") (lambda () (interactive)
+  			       (kill-buffer "*apps*")
+  			       (switch-to-buffer "*splash*")))
+      (local-set-key (kbd "m") (lambda () (interactive)
+  			       (kill-buffer "*apps*")
+  			       (call-interactively 'emms-browser)))
+      (local-set-key (kbd "i") (lambda () (interactive)
+  			       (kill-buffer "*apps*")
+  			       (find-file "~/.config/i3/config")))
+      (local-set-key (kbd "x") (lambda () (interactive)
+  			       (kill-buffer "*apps*")
+  			       (find-file "~/.xmonad/xmonad.hs")))
+      (local-set-key (kbd "e") (lambda () (interactive)
+  			       (kill-buffer "*apps*")
+  			       (find-file "~/.e.org")))
+      (local-set-key (kbd "p") (lambda () (interactive)
+  			       (kill-buffer "*apps*")
+  			       (find-file "~/.config/polybar/config.ini")))
+      (local-set-key (kbd "n") (lambda () (interactive)
+  			       (kill-buffer "*apps*")
+  			       (interactive)
+  			       (find-file "/sudo::/etc/nixos/configuration.nix")))
+      (local-set-key (kbd "f") (lambda () (interactive)
+  			       (kill-buffer "*apps*")
+  			       (interactive)
+  			       (find-file "/sudo::/etc/nixos/flake.nix")))
+      (local-set-key (kbd "h") (lambda () (interactive)
+  			       (kill-buffer "*apps*")
+  			       (interactive)
+  			       (find-file "/sudo::/etc/nixos/home.nix")))
+      (local-set-key (kbd "q") (lambda () (interactive)
+  			       (kill-buffer "*apps*")
+  			       (call-interactively 'save-buffers-kill-terminal))))
+    ;; Switch to the apps-buffer
+    (switch-to-buffer apps-buffer))
+
+  (defun my-custom-splash-screen ()
+    "Display custom splash screen with centered logo and text."
+    (let ((splash-buffer (get-buffer-create "*splash*")))
+      (with-current-buffer splash-buffer
+        (erase-buffer)
+        (let ((inhibit-read-only t))
+          ;; Calculate center position for window
+          (let* ((window-width (window-width))
+                 (window-height (window-height))
+                 ;; Insert some vertical spacing to center content
+                 (vertical-offset (/ window-height 6)))
+            ;; Add vertical spacing
+            (insert (make-string vertical-offset ?\n))
+            ;; Insert and center the image
+            (when (display-graphic-p)
+              (let ((image (create-image "~/Pictures/nix_emacs_logo_small.png" nil nil :ascent 'center)))
+                (when image
+                  (let* ((image-width (round (car (image-size image))))  ; Convert to integer
+                         (padding (make-string (max 0 (/ (- window-width image-width) 2)) ?\ )))
+                    (insert padding)
+                    (insert-image image)
+                    (insert "\n\n")))))
+            ;; Insert centered text
+  	  (let* ((text " Welcome to NixMacs!  \n")
+  		 (text-width (length text))
+  		 (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
+  	    (insert padding text "\n"))
+            (let* ((text "C-x C-f => Open or Create File")
+                   (text-width (length text))
+                   (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
+              (insert padding text "\n"))
+  	  (let* ((text "C-x d => Navigate to Directory")
+  		 (text-width (length text))
+  		 (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
+  	    (insert padding text "\n"))
+  	  (let* ((text "a => Show Application Menu")
+  		 (text-width (length text))
+  		 (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
+  	    (insert padding text "\n"))
+  	  (let* ((text "q => Quit Emacs")
+  		 (text-width (length text))
+  		 (padding (make-string (max 0 (/ (- window-width text-width) 2)) ?\ )))
+  	    (insert padding text "\n"))
+            ;; Add some more spacing
+            (insert "\n\n")
+            (let* ((instruction "Press key to continue...")
+                   (instruction-width (length instruction))
+                   (padding (make-string (max 0 (/ (- window-width instruction-width) 2)) ?\ )))
+              (insert padding instruction))))
+        ;; Make buffer read-only
+        (setq buffer-read-only t)
+        (goto-char (point-min)))
+      ;; Display the buffer
+      (switch-to-buffer splash-buffer)
+      ;; Set up key bindings
+      ;; Try multiple ways to bind the Enter/Return key
+      (local-set-key (kbd "RET") (lambda () (interactive) 
+                                   (kill-buffer "*splash*")))
+      (local-set-key (kbd "<return>") (lambda () (interactive) 
+                                        (kill-buffer "*splash*")))
+      (local-set-key [return] (lambda () (interactive) 
+                                (kill-buffer "*splash*")))
+      (local-set-key [13] (lambda () (interactive) 
+                            (kill-buffer "*splash*")))
+      (local-set-key (kbd "e") (lambda () (interactive)
+  			       (kill-buffer "*splash*")
+  		               (find-file "~/.e.org")))
+      (local-set-key (kbd "n") (lambda () (interactive)
+  			       (kill-buffer "*splash*")
+  			       (find-file "/etc/nixos/configuration.nix")))
+      (local-set-key (kbd "f") (lambda () (interactive)
+  			       (kill-buffer "*splash*")
+  			       (interactive)
+  			       (find-file "/sudo::/etc/nixos/flake.nix")))
+      (local-set-key (kbd "i") (lambda () (interactive)
+  			       (kill-buffer "*splash*")
+  			       (find-file "~/.config/i3/config")))
+      (local-set-key (kbd "x") (lambda () (interactive)
+  			       (kill-buffer "*splash*")
+  			       (find-file "~/.xmonad/xmonad.hs")))
+      (local-set-key (kbd "p") (lambda () (interactive)
+  			       (kill-buffer "*splash*")
+  			       (find-file "~/.config/polybar/config.ini")))
+      (local-set-key (kbd "m") (lambda () (interactive)
+  			       (kill-buffer "*splash*")
+  			       (call-interactively 'emms-browser)))
+      (local-set-key (kbd "a") (lambda () (interactive)
+  			       (application-buffer)
+  			       (switch-to-buffer "*apps*")))
+  			       ;;(switch-to-buffer apps-buffer)))
+      (local-set-key (kbd "n") (lambda () (interactive)
+  			       (application-buffer)
+  			       (interactive)
+  			       (find-file "/sudo::/etc/nixos/configuration.nix")))
+      (local-set-key (kbd "h") (lambda () (interactive)
+  			       (application-buffer)
+  			       (interactive)
+  			       (find-file "/sudo::/etc/nixos/home.nix")))
+      (local-set-key (kbd "t") (lambda () (interactive)
+  			       (kill-buffer "*splash*")
+  			       (find-file "~/Documents/temp.org")))
+      (local-set-key (kbd "q") (lambda () (interactive)
+  			       (kill-buffer "*splash*")
+  			       (call-interactively 'save-buffers-kill-terminal)))))
+      ;; Any other key just dismisses splash screen
+      ;(local-set-key [t] (lambda () (interactive) (kill-buffer "*splash*")))))
+  ;; Show custom splash screen on startup (only in graphical mode)
+  (add-hook 'emacs-startup-hook 
+            (lambda () 
+              (when (display-graphic-p)
+                (my-custom-splash-screen))))
+#+END_SRC
+** Panic-Quit Emacs
+This is a sort of nuclear option for force-quitting emacs when you're stuck anywhere, or are using multiple nested emacs instances within one another using the M-x term command.
+#+BEGIN_SRC emacs-lisp
+(define-prefix-command 'my-C-q-map)
+(global-set-key (kbd "C-q") 'my-C-q-map)
+(define-key my-C-q-map (kbd "C-q C-q") #'save-buffers-kill-terminal)
+#+END_SRC
+** Terminal Fixes
+A few sane fixes to make it more comfortable to use the M-x term terminal inside emacs.
+#+BEGIN_SRC emacs-lisp
+(defun my-term-setup ()
+  ;; Use C-c o instead of C-x o
+  (define-key term-raw-map (kbd "C-c o") #'other-window)
+  (define-key term-raw-map (kbd "C-c b") #'switch-to-buffer)
+  (define-key term-raw-map (kbd "C-c 1") #'delete-other-windows)
+  (define-key term-raw-map (kbd "C-c 3") #'split-window-right)
+  (define-key term-raw-map (kbd "C-c 2") #'split-window-below))
+(add-hook 'term-mode-hook 'my-term-setup)
+
+(defun my-new-term ()
+  "Open a new terminal in the current window, prompting for shell."
+  (interactive)
+  ;; Use `shell-file-name` if set, otherwise fallback to "bash"
+  (let* ((default-shell (or (and (boundp 'shell-file-name) shell-file-name)
+                            "bash"))
+         (shell (read-shell-command "Run shell: " default-shell))
+         (term-buffer-name (generate-new-buffer-name "*term*")))
+    ;; Open terminal using just the program name (no full path)
+    (term shell)
+    (rename-buffer term-buffer-name)))
+
+(global-set-key (kbd "C-c <return>") #'my-new-term)
+#+END_SRC
+** Org Insert Helper
+The org insert helper is what we use to show the available options defined previously to insert org and LaTeX snippets for convenience.
+#+BEGIN_SRC emacs-lisp
+    (use-package hydra
+      :ensure t)
+
+    (defhydra my/org-insert-hydra (:color blue :hint nil)
+      "
+    Insert:
+      _t_: Table Skeleton    _c_: Code Block
+      _f_: Figure Block      _e_: Example Doc
+      _w_: Wrapfigure
+    "
+      ("t" my/insert-table-skeleton)
+      ("c" my/insert-code-block)
+      ("f" my/insert-figure-block)
+      ("e" my/insert-example-document)
+      ("w" my/insert-wrapfigure)
+      ("q" nil "quit"))
+
+    (with-eval-after-load 'org
+      (define-key org-mode-map (kbd "C-S-i") #'my/org-insert-hydra/body))
+#+END_SRC
+* The End
+** Thank you!
+A little thank you from me (nixpup) for using my Emacs configuration, and/or other configurations and files I provide online. It really means a lot to me, happy hacking! :3
+
+[[https://codeberg.org/nixpup/NixOS/raw/branch/main/Pictures/astolfo_crown_small.png]]
