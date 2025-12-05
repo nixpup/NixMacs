@@ -54,9 +54,14 @@ in {
         flycheck
         gruvbox-theme
         bongo
+        impatient-mode
+        simple-httpd
         org  # Important: make sure org is included!
         # ... add more packages
       ] ++ (cfg.extraPackages epkgs)))
+      pkgs.rust-analyzer
+      pkgs.zathura
+      pkgs.mpv
     ];
 
     # Create the .emacs bootstrap file
