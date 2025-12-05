@@ -379,7 +379,7 @@ Here is the setup for the splash screen every time you start up emacs, and the i
                (vertical-offset (/ window-height 6)))
           (insert (make-string vertical-offset ?\n))
           (when (display-graphic-p)
-            (let ((image (create-image "~/Pictures/nix_emacs_logo_small.png" nil nil :ascent 'center)))
+            (let ((image (create-image (or (getenv "EMACS_LOGO_PATH") "~/Pictures/nix_emacs_logo_small.png") nil nil :ascent 'center)))
               (when image
                 (let* ((image-width (round (car (image-size image))))
                        (padding (make-string (max 0 (/ (- window-width image-width) 2)) ?\ )))
