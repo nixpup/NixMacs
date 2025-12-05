@@ -13,7 +13,7 @@ let
 
   hoon-mode =  pkgs.emacsPackages.trivialBuild {
     pname = "hoon-mode";
-    version = "latest"
+    version = "latest";
     src = pkgs.fetchFromGitHub {
       owner = "urbit";
       repo = "hoon-mode.el";
