@@ -53,10 +53,8 @@ Enable a simple for of auto-completion preview using fancy dabbrev.
 This Chapter sets up auto-suggestions for various programming languages, and a language server connection.
 ** HTML Live-Reload and Server
 #+BEGIN_SRC emacs-lisp
-    (use-package simple-httpd
-      :ensure t)
-    (use-package impatient-mode
-      :ensure t)
+    (require 'simple-httpd)
+    (require 'impatient-mode)
   (defun my/html-live-preview ()
   "Start local HTTP server, enable impatient-mode, and open preview in browser."
   (interactive)
@@ -294,11 +292,8 @@ This configures the ERC IRC client, change these values such as erc-nick and erc
 #+END_SRC
 ** Bongo Configuration
 #+BEGIN_SRC emacs-lisp
-      (use-package bongo
-        :ensure t
-        :commands (bongo-playlist bongo-library)
-        :config
-        (setq bongo-default-browser-function 'bongo-dired-browser))
+      (require 'bongo)
+      (setq bongo-default-browser-function 'bongo-dired-browser)
       (setq bongo-enabled-backends '(mpv))
       (setq bongo-default-backend 'mpv)
       (setq bongo-mpv-program "mpv"
@@ -463,7 +458,7 @@ Here is the setup for the splash screen every time you start up emacs, and the i
             (insert (make-string vertical-offset ?\n))
             ;; Insert and center the image
             (when (display-graphic-p)
-              (let ((image (create-image (or (getenv "NIXMACS_LOGO_PATH) "~/Pictures/nix_emacs_logo_small.png") nil nil :ascent 'center)))
+              (let ((image (create-image (or (getenv "NIXMACS_LOGO_PATH") "~/Pictures/nix_emacs_logo_small.png") nil nil :ascent 'center)))
                 (when image
                   (let* ((image-width (round (car (image-size image))))  ; Convert to integer
                          (padding (make-string (max 0 (/ (- window-width image-width) 2)) ?\ )))
@@ -596,8 +591,7 @@ A few sane fixes to make it more comfortable to use the M-x term terminal inside
 ** Org Insert Helper
 The org insert helper is what we use to show the available options defined previously to insert org and LaTeX snippets for convenience.
 #+BEGIN_SRC emacs-lisp
-    (use-package hydra
-      :ensure t)
+    (require 'hydra)
 
     (defhydra my/org-insert-hydra (:color blue :hint nil)
       "
