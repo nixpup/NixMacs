@@ -29,40 +29,6 @@ This .e.org File is a complete Emacs configuration setup with auto-completion an
     #+END_EXAMPLE
 ...if you provided these two files, your fresh new Emacs should be ready to go and begin by automatically installing all the packages you need. After this process is done, you may need to restart Emacs once.                       
 * Packages and Related
-** Define Packages
-If this is the first time this configuration is used, and the automatic package installation didn't work, run ~M-x package-install-selected-packages~.
-#+BEGIN_SRC emacs-lisp
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(sanityinc-tomorrow-night))
- '(custom-safe-themes
-   '("6fc9e40b4375d9d8d0d9521505849ab4d04220ed470db0b78b700230da0a86c1"
-     default))
- '(package-selected-packages
-   '(color-theme-sanityinc-tomorrow company emms fancy-dabbrev lsp-mode
-				    lsp-ui markdown-mode multi-term
-				    multiple-cursors nix-buffer
-				    nix-mode rainbow-mode rust-mode
-				    rustic wttrin hydra all-the-icons haskell-mode arduino-mode flycheck gruvbox-theme bongo)))
-#+END_SRC
-** Automatically Install Packages
-This function should ideally automatically install all required packages for you into your emacs setup.
-#+BEGIN_SRC emacs-lisp
-  (defun my/ensure-selected-packages-installed ()
-  "Install missing packages from `package-selected-packages` without refreshing every time."
-  (unless (cl-every #'package-installed-p package-selected-packages)
-    (message "Refreshing package contents...")
-    (package-refresh-contents)
-    (package-install-selected-packages :noconfirm)))
-
-  (my/ensure-selected-packages-installed)
-#+END_SRC
 ** Colorscheme and Font Size
 Setup the colorscheme and the font size.
 #+BEGIN_SRC emacs-lisp
