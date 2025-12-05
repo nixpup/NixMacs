@@ -12,7 +12,7 @@ let
   '';
   
   # Create the configured Emacs with packages FIRST
-  configuredEmacs = pkgs.emacsWithPackages (epkgs: with epkgs; [
+  configuredEmacs = pkgs.emacs.pkgs.withPackages (epkgs: with epkgs; [
     use-package
     color-theme-sanityinc-tomorrow
     company
