@@ -8,6 +8,7 @@ A NixOS Flake Module to use my custom configuration of Emacs (NixMacs) easily as
 
 # Installation
 ## Inside a Flake
+**flake.nix**:
 ```nix
 {
   # ... your configuration.
@@ -41,4 +42,13 @@ A NixOS Flake Module to use my custom configuration of Emacs (NixMacs) easily as
       ];
     };
 }
+```
+
+**home.nix**:
+```nix
+{ config, pkgs, lib, ... }:
+# ...your home configuration.
+nixMacs = {
+  enable = true;
+};
 ```
