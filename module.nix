@@ -22,7 +22,7 @@ let
       sha256 = "sha256-gOmh3+NxAIUa2VcmFFqavana8r6LT9VmnrJOFLCF/xw=";
     };
 
-    nativeBuildInputs = [ pkgs.emacs pkgs.emacsPackages.elpaPackages.emacs ]; # or just pkgs.emacs for byte-compiling
+    nativeBuildInputs = [ pkgs.emacs ]; # or just pkgs.emacs for byte-compiling
 
     # If there is no build system, skip straight to install.
     buildPhase = "true";
