@@ -11,15 +11,26 @@ let
       --replace "~/Pictures/nix_emacs_logo_small.png" "${logoImage}"
   '';
 
-  hoon-mode =  pkgs.emacsPackages.trivialBuild {
+  hoon-mode = pkgs.stdenv.mkDerivation {
     pname = "hoon-mode";
     version = "latest";
+
     src = pkgs.fetchFromGitHub {
       owner = "urbit";
-      repo = "hoon-mode.el";
-      rev = "main";
+      repo  = "hoon-mode.el";
+      rev   = "main";
       sha256 = "sha256-gOmh3+NxAIUa2VcmFFqavana8r6LT9VmnrJOFLCF/xw=";
     };
+
+    nativeBuildInputs = [ pkgs.emacs pkgs.emacsPackages.elpaPackages.emacs ]; # or just pkgs.emacs for byte-compiling
+
+    # If there is no build system, skip straight to install.
+    buildPhase = "true";
+
+    installPhase = ''
+      install -d $out/share/emacs/site-lisp
+      install -m644 hoon-mode.el hoon-dictionary.json $out/share/emacs/site-lisp/
+    '';
   };
   
   # Create the configured Emacs with packages FIRST
