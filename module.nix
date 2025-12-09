@@ -18,7 +18,8 @@ let
     src = pkgs.fetchFromGitHub {
       owner = "urbit";
       repo  = "hoon-mode.el";
-      rev   = "main";
+      #rev   = "main";
+      rev = "master";
       sha256 = "sha256-gOmh3+NxAIUa2VcmFFqavana8r6LT9VmnrJOFLCF/xw=";
     };
 
