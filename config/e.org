@@ -49,6 +49,11 @@ Enable a simple for of auto-completion preview using fancy dabbrev.
 (global-set-key (kbd "TAB") 'fancy-dabbrev-expand)
 (global-set-key (kbd "<backtab>") 'fancy-dabbrev-backward)
 #+END_SRC
+** EXWM
+#+BEGIN_SRC emacs-lisp
+(when (getenv "EXWM_ENABLE")
+  (load-file "~/.exwm.el"))
+#+END_SRC
 ** Company and Auto-Suggestions
 This Chapter sets up auto-suggestions for various programming languages, and a language server connection.
 ** HTML Live-Reload and Server
