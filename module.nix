@@ -5,6 +5,8 @@ with lib;
 let
   cfg = config.nixMacs;
   logoImage = "${./config/nix_emacs_logo_small.png}";
+
+  exwmDotEl = ./config/exwm.el;
   
   customEorg = pkgs.runCommand "e.org" {} ''
     substitute ${./config/e.org} $out \
@@ -125,6 +127,11 @@ in {
     # Use the MODIFIED e.org with substituted path
     home.file.".e.org" = {
       source = customEorg;
+    };
+
+    # EXWM Config File
+    home.file.".exwm.el" = {
+      source = exwmDotEl;
     };
   };
 }
