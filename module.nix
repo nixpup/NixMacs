@@ -64,15 +64,6 @@ let
     impatient-mode
     simple-httpd
     hoon-mode
-    (melpaPackages.exwm.overrideAttrs (old: {
-      version = "0.34";
-      src = pkgs.fetchFromGitHub {
-        owner = "emacs-exwm";
-        repo = "exwm";
-        rev = "254fa6c43f2e2c29f87dcac404a054a393a6a0ea";
-        sha256 = "sha256-7Z8vkmkMFsZnBfiadoKNiaJd1+RvCr2OxW1EiY9xY4s=";
-      };
-    }))
   ] ++ (cfg.extraPackages epkgs));
 
   # Then create wrapper that references it
