@@ -52,8 +52,7 @@ Enable a simple for of auto-completion preview using fancy dabbrev.
 ** EXWM
 #+BEGIN_SRC emacs-lisp
 (when (and (eq window-system 'x) (featurep 'exwm))
-  (load-file "~/.exwm.el")
-  (exwm-enable))
+  (load-file "~/.exwm.el"))
 #+END_SRC
 ** Company and Auto-Suggestions
 This Chapter sets up auto-suggestions for various programming languages, and a language server connection.
