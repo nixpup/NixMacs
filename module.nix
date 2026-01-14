@@ -36,37 +36,80 @@ let
     '';
   };
   
+
+
   # Create the configured Emacs with packages FIRST
   #configuredEmacs = pkgs.emacs.pkgs.withPackages (epkgs: with epkgs; [
-  configuredEmacs = (pkgs.emacsPackagesFor pkgs.emacs).emacsWithPackages (epkgs: with epkgs; [
-    use-package
-    color-theme-sanityinc-tomorrow
-    company
-    emms
-    fancy-dabbrev
-    lsp-mode
-    lsp-ui
-    markdown-mode
-    multi-term
-    multiple-cursors
-    nix-buffer
-    nix-mode
-    rainbow-mode
-    rust-mode
-    rustic
-    wttrin
-    hydra
-    all-the-icons
-    haskell-mode
-    arduino-mode
-    flycheck
-    gruvbox-theme
-    bongo
-    impatient-mode
-    simple-httpd
-    hoon-mode
-    exwm
-  ] ++ (cfg.extraPackages epkgs));
+  #configuredEmacs = (pkgs.emacsPackagesFor pkgs.emacs).emacsWithPackages (epkgs: with epkgs; [
+  #  use-package
+  #  color-theme-sanityinc-tomorrow
+  #  company
+  #  emms
+  #  fancy-dabbrev
+  #  lsp-mode
+  #  lsp-ui
+  #  markdown-mode
+  #  multi-term
+  #  multiple-cursors
+  #  nix-buffer
+  #  nix-mode
+  #  rainbow-mode
+  #  rust-mode
+  #  rustic
+  #  wttrin
+  #  hydra
+  #  all-the-icons
+  #  haskell-mode
+  #  arduino-mode
+  #  flycheck
+  #  gruvbox-theme
+  #  bongo
+  #  impatient-mode
+  #  simple-httpd
+  #  hoon-mode
+  #] ++ (cfg.extraPackages epkgs));
+
+configuredEmacs = let
+  myEmacsPackages = pkgs.emacsPackagesFor pkgs.emacs;
+  fixedEmacsPackages = myEmacsPackages.overrideScope (efinal: eprev: {
+    exwm = eprev.exwm.overrideAttrs (old: {
+      src = pkgs.fetchFromGitHub {
+        owner = "emacs-exwm";
+        repo = "exwm";
+        rev = "0.34";
+        hash = "sha256-7Z8vkmkMFsZnBfiadoKNiaJd1+RvCr2OxW1EiY9xY4s=";
+      };
+    });
+  });
+in fixedEmacsPackages.emacsWithPackages (epkgs: with epkgs; [
+  use-package
+  color-theme-sanityinc-tomorrow
+  company
+  emms
+  fancy-dabbrev
+  lsp-mode
+  lsp-ui
+  markdown-mode
+  multi-term
+  multiple-cursors
+  nix-buffer
+  nix-mode
+  rainbow-mode
+  rust-mode
+  rustic
+  wttrin
+  hydra
+  all-the-icons
+  haskell-mode
+  arduino-mode
+  flycheck
+  gruvbox-theme
+  bongo
+  impatient-mode
+  simple-httpd
+  hoon-mode
+  exwm
+] ++ (cfg.extraPackages epkgs));
 
   # Then create wrapper that references it
   nixmacs = pkgs.writeShellScriptBin cfg.binaryName ''
