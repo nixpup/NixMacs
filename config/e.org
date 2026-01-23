@@ -378,6 +378,7 @@ Enable multiple cursors when pressing Ctrl+Shift+> and other keybinds to edit mu
 ** Image Dired
 This enables image perviews inside dired using image-dired when launched.
 #+BEGIN_SRC emacs-lisp
+(setq insert-directory-program (concat "/etc/profiles/per-user/" (getenv "USER") "/bin/ls"))
 (global-set-key (kbd "C-x D") 'image-dired)
 (global-set-key (kbd "C-I") 'image-dired-dired-display-image)
 #+END_SRC
