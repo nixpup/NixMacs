@@ -3,6 +3,7 @@
 with lib;
 
 let
+  inherit (lib) types mkOption mkEnableOption;
   cfg = config.nixMacs;
   logoImage = "${./config/nix_emacs_logo_small.png}";
 
@@ -89,11 +90,94 @@ let
     anzu
     visual-regexp
     try
+    sudo-edit
   ] ++ (cfg.extraPackages epkgs));
 
+  configuredEmacsX11 = pkgs.emacs.pkgs.withPackages (epkgs: with epkgs; [
+    use-package
+    color-theme-sanityinc-tomorrow
+    company
+    emms
+    fancy-dabbrev
+    lsp-mode
+    lsp-ui
+    markdown-mode
+    multi-term
+    multiple-cursors
+    nix-buffer
+    nix-mode
+    rainbow-mode
+    rust-mode
+    rustic
+    wttrin
+    hydra
+    all-the-icons
+    haskell-mode
+    arduino-mode
+    flycheck
+    gruvbox-theme
+    bongo
+    impatient-mode
+    simple-httpd
+    hoon-mode
+    # EXWM
+    exwmFixed
+    compat
+    xelb
+    nickel-mode
+    iedit
+    anzu
+    visual-regexp
+    try
+    sudo-edit    
+  ] ++ (cfg.extraPackages epkgs));
+
+  configuredEmacsWayland = pkgs.emacs-pgtk.pkgs.withPackages (epkgs: with epkgs; [
+    use-package
+    color-theme-sanityinc-tomorrow
+    company
+    emms
+    fancy-dabbrev
+    lsp-mode
+    lsp-ui
+    markdown-mode
+    multi-term
+    multiple-cursors
+    nix-buffer
+    nix-mode
+    rainbow-mode
+    rust-mode
+    rustic
+    wttrin
+    hydra
+    all-the-icons
+    haskell-mode
+    arduino-mode
+    flycheck
+    gruvbox-theme
+    bongo
+    impatient-mode
+    simple-httpd
+    hoon-mode
+    # EXWM
+    exwmFixed
+    compat
+    xelb
+    nickel-mode
+    iedit
+    anzu
+    visual-regexp
+    try
+    sudo-edit    
+  ] ++ (cfg.extraPackages epkgs));
+  
   # Then create wrapper that references it
   nixmacs = pkgs.writeShellScriptBin cfg.binaryName ''
-    exec ${configuredEmacs}/bin/emacs "$@"
+    exec ${configuredEmacsX11}/bin/emacs "$@"
+  '';
+
+  nixmacs-wayland = pkgs.writeShellScriptBin "${cfg.binaryName}-wayland" ''
+    exec ${configuredEmacsWayland}/bin/emacs "$@"
   '';
   
 in {
@@ -123,6 +207,15 @@ in {
       default = "nixmacs";
       description = "Name of the Emacs binary command";
     };
+
+    waylandPackage = {
+      enable = mkOption {
+        type = types.bool;
+        default = true;
+        example = false;
+        description = "Whether to build a Wayland Compatible NixMacs Pkg";
+      };
+    };
     
     exwm = {
       enable = mkOption {
@@ -150,7 +243,8 @@ in {
       pkgs.rust-analyzer
       pkgs.zathura
       pkgs.mpv
-    ];
+    ]
+    ++ lib.optional cfg.waylandPackage.enable nixmacs-wayland;
 
     home.file.".emacs" = {
       text = ''
