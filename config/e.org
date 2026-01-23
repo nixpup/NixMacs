@@ -87,6 +87,22 @@ Set up a basic version of company.
 (setq company-idle-delay 0.1
       company-minimum-prefix-length 1)
 #+END_SRC
+*** Nickel LSP Mode
+#+BEGIN_SRC emacs-lisp
+(require 'nickel-mode)
+(require 'lsp-mode)
+
+(add-to-list 'lsp-language-id-configuration '(nickel-mode . "nickel"))
+  (lsp-register-client (make-lsp-client
+                           :new-connection (lsp-stdio-connection "nls")
+                           :activation-fn (lsp-activate-on "nickel")
+                           :server-id 'nls
+                           :major-modes '(nickel-mode)
+                           :initialization-options (lambda ()
+						     ;; pass empty object to use default config
+						     (list :eval (make-hash-table)))))
+(add-hook 'nickel-mode-hook #'lsp-deferred)
+#+END_SRC
 *** Rust LSP Mode
 Configure auto-suggestions for the Rust programming language.
 #+BEGIN_SRC emacs-lisp
