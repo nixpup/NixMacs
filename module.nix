@@ -88,6 +88,7 @@ let
     iedit
     anzu
     visual-regexp
+    try
   ] ++ (cfg.extraPackages epkgs));
 
   # Then create wrapper that references it
