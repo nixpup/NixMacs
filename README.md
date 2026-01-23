@@ -6,6 +6,10 @@ A NixOS Flake Module to use my custom configuration of Emacs (NixMacs) easily as
  - Be at least on **NixOS** Version **25.05** (Warbler)
  - Have **home-manager** Installed
 
+# Try NixMacs
+## Without Installing on NixOS
+Simply run `nix run github:nixpup/NixMacs#nixmacs` (you may need to add the `--no-write-lock-file` flag) inside a Terminal and you can test NixMacs without having to install or configure anything!
+
 # Installation
 ## Inside a Flake
 **flake.nix**:
@@ -13,7 +17,7 @@ A NixOS Flake Module to use my custom configuration of Emacs (NixMacs) easily as
 {
   # ... your configuration.
   nixmacs = {
-    url = "git+https://codeberg.org/nixpup/NixMacs.git";
+    url = "github:nixpup/NixMacs";
     inputs.nixpkgs.follows = "nixpkgs";
     inputs.home-manager.follows = "home-manager";
   };
@@ -50,8 +54,13 @@ A NixOS Flake Module to use my custom configuration of Emacs (NixMacs) easily as
 # ...your home configuration.
 nixMacs = {
   enable = true;
+  exwm = {
+    enable = true; # Create "~/.exwm.el" File.
+    layout = "qwerty"; # Can also be "colemak".
+  };
+  waylandPackage.enable = true; # Enable the creation of a "nixmacs-wayland" binary.
 };
 ```
 
 # Showcase
-![Showcase](https://codeberg.org/nixpup/NixMacs/raw/branch/main/example.png)
+![Showcase](https://raw.githubusercontent.com/nixpup/NixMacs/refs/heads/main/example.png)
