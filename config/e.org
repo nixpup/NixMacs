@@ -35,9 +35,7 @@ Setup the colorscheme and the font size.
   (custom-set-faces
          ;; Add custom faces here.
    )
-  ;;(require 'color-theme-sanityinc-tomorrow)
-  ;;(color-theme-sanityinc-tomorrow-night)
-
+  (add-to-list 'custom-theme-load-path  "~/.nixmacs/themes/")
   (set-face-attribute 'default nil :height 125)
 #+END_SRC
 ** General Settings
