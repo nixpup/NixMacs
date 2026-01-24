@@ -91,6 +91,7 @@ let
     visual-regexp
     try
     sudo-edit
+    pdf-tools
   ] ++ (cfg.extraPackages epkgs));
 
   configuredEmacsX11 = pkgs.emacs.pkgs.withPackages (epkgs: with epkgs; [
@@ -129,7 +130,8 @@ let
     anzu
     visual-regexp
     try
-    sudo-edit    
+    sudo-edit
+    pdf-tools
   ] ++ (cfg.extraPackages epkgs));
 
   configuredEmacsWayland = pkgs.emacs-pgtk.pkgs.withPackages (epkgs: with epkgs; [
@@ -168,7 +170,8 @@ let
     anzu
     visual-regexp
     try
-    sudo-edit    
+    sudo-edit
+    pdf-tools
   ] ++ (cfg.extraPackages epkgs));
   
   # Then create wrapper that references it
