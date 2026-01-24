@@ -92,6 +92,7 @@ let
     try
     sudo-edit
     pdf-tools
+    magit
   ] ++ (cfg.extraPackages epkgs));
 
   configuredEmacsX11 = pkgs.emacs.pkgs.withPackages (epkgs: with epkgs; [
@@ -132,6 +133,7 @@ let
     try
     sudo-edit
     pdf-tools
+    magit
   ] ++ (cfg.extraPackages epkgs));
 
   configuredEmacsWayland = pkgs.emacs-pgtk.pkgs.withPackages (epkgs: with epkgs; [
@@ -172,6 +174,7 @@ let
     try
     sudo-edit
     pdf-tools
+    magit
   ] ++ (cfg.extraPackages epkgs));
   
   # Then create wrapper that references it
