@@ -55,9 +55,11 @@ Setup the colorscheme and the font size.
 (blink-cursor-mode 0)
 #+END_SRC
 ** Fix Ctrl+Backspace when in Terminal
+#+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-?") 'help-command)
 (global-set-key (kbd "C-h") 'backward-kill-word)
 (global-set-key (kbd "M-[ 3 ; 5 ~") 'backward-kill-word)
+#+END_SRC
 ** Magit
 #+BEGIN_SRC emacs-lisp
 (use-package magit
