@@ -208,7 +208,9 @@ This option lets you visually see images you insert while in org-mode.
  '((js . t)))
 #+END_SRC
 ** Org Always Wrap/Truncate Lines
+#+BEGIN_SRC emacs-lisp
 (add-hook 'org-mode-hook (lambda () (setq truncate-lines t)))
+#+END_SRC
 ** Org to PDF Export
 This function allows you to press Ctrl+Shift+e to export any currently opened org document to PDF.
 #+BEGIN_SRC emacs-lisp
