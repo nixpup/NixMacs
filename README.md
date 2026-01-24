@@ -38,7 +38,7 @@ Simply run `nix run github:nixpup/NixMacs#nixmacs` (you may need to add the `--n
         # ...your modules.
         home-manager.nixosModules.home-manager
 
-        ({ config, pkgs, lib, ... }: 
+        ({ config, pkgs, lib, ... }:
           imports = [
             home-manager.nixosModules.home-manager
           ];
@@ -60,6 +60,11 @@ Simply run `nix run github:nixpup/NixMacs#nixmacs` (you may need to add the `--n
 # ...your home configuration.
 nixMacs = {
   enable = true;
+  themes = {
+    fuwamoco = true;
+    marnie = false;
+    gruvbox = false;
+  };
   exwm = {
     enable = true; # Create "~/.exwm.el" File.
     layout = "qwerty"; # Can also be "colemak".
