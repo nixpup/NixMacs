@@ -20,14 +20,14 @@ This .e.org File is a complete Emacs configuration setup with auto-completion an
  1. This .e.org file inside your $HOME (/home/<USERNAME>) directory.
  2. A .emacs file with the following contents inside your $HOME (/home/<USERNAME>) directory:
     #+BEGIN_EXAMPLE
-    (let ((orgfile "~/.e.org")                      
-          (elfile "~/.e.el"))                       
-      (when (or (not (file-exists-p elfile))        
-            (require 'org)                          
-            (org-babel-tangle-file orgfile elfile)) 
+    (let ((orgfile "~/.e.org")
+          (elfile "~/.e.el"))
+      (when (or (not (file-exists-p elfile))
+            (require 'org)
+            (org-babel-tangle-file orgfile elfile))
           (load-file elfile))
     #+END_EXAMPLE
-...if you provided these two files, your fresh new Emacs should be ready to go and begin by automatically installing all the packages you need. After this process is done, you may need to restart Emacs once.                       
+...if you provided these two files, your fresh new Emacs should be ready to go and begin by automatically installing all the packages you need. After this process is done, you may need to restart Emacs once.
 * Packages and Related
 ** Colorscheme and Font Size
 Setup the colorscheme and the font size.
@@ -38,7 +38,6 @@ Setup the colorscheme and the font size.
   ;;(require 'color-theme-sanityinc-tomorrow)
   ;;(color-theme-sanityinc-tomorrow-night)
 
-  (load-theme 'gruvbox-dark-medium t)
   (set-face-attribute 'default nil :height 125)
 #+END_SRC
 ** General Settings
@@ -412,7 +411,7 @@ This enables image perviews inside dired using image-dired when launched.
 (global-set-key (kbd "C-x B") 'ibuffer)
 #+END_SRC
 ** Splash and Application Screen
-Here is the setup for the splash screen every time you start up emacs, and the included application launcher. 
+Here is the setup for the splash screen every time you start up emacs, and the included application launcher.
 #+BEGIN_SRC emacs-lisp
   (setq inhibit-splash-screen t)
   (setq inhibit-startup-message t)
@@ -554,13 +553,13 @@ Here is the setup for the splash screen every time you start up emacs, and the i
       (switch-to-buffer splash-buffer)
       ;; Set up key bindings
       ;; Try multiple ways to bind the Enter/Return key
-      (local-set-key (kbd "RET") (lambda () (interactive) 
+      (local-set-key (kbd "RET") (lambda () (interactive)
                                    (kill-buffer "*splash*")))
-      (local-set-key (kbd "<return>") (lambda () (interactive) 
+      (local-set-key (kbd "<return>") (lambda () (interactive)
                                         (kill-buffer "*splash*")))
-      (local-set-key [return] (lambda () (interactive) 
+      (local-set-key [return] (lambda () (interactive)
                                 (kill-buffer "*splash*")))
-      (local-set-key [13] (lambda () (interactive) 
+      (local-set-key [13] (lambda () (interactive)
                             (kill-buffer "*splash*")))
       (local-set-key (kbd "e") (lambda () (interactive)
   			       (kill-buffer "*splash*")
@@ -605,8 +604,8 @@ Here is the setup for the splash screen every time you start up emacs, and the i
       ;; Any other key just dismisses splash screen
       ;(local-set-key [t] (lambda () (interactive) (kill-buffer "*splash*")))))
   ;; Show custom splash screen on startup (only in graphical mode)
-  (add-hook 'emacs-startup-hook 
-            (lambda () 
+  (add-hook 'emacs-startup-hook
+            (lambda ()
               (when (display-graphic-p)
                 (my-custom-splash-screen))))
 #+END_SRC
