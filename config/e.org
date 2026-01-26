@@ -48,8 +48,13 @@ Setup the colorscheme and the font size.
               tab-width 2)
 (setq require-final-newline t)
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
-(global-hl-line-mode 1)
+(setq-default cursor-type 'bar)
 (blink-cursor-mode 0)
+#+END_SRC
+** Beacon
+Enable the Beacon Line-Highlighter Globally.
+#+BEGIN_SRC emacs-lisp
+(beacon-mode 1)
 #+END_SRC
 ** Fix Ctrl+Backspace when in Terminal
 #+BEGIN_SRC emacs-lisp
