@@ -339,6 +339,7 @@ Here we set up the tab bar for using tabs inside emacs.
   (tab-bar-mode 1))
   ;; Bind it globally
   (global-set-key (kbd "C-c h") #'my/tab-bar-toggle)
+  (vim-tab-bar-mode)
 #+END_SRC
 * Extra Programs
 ** ERC Configuration
