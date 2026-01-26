@@ -30,8 +30,7 @@
       (cyan "#FDA9D8")
       (bright-cyan "#FDA9D8")
       (white "#bcedf5")
-      (bright-white "#bcedf5")
-      (bg-darker "#13090F"))
+      (bright-white "#bcedf5"))
 
   (custom-theme-set-faces
    'fuwamoco
@@ -39,8 +38,8 @@
    ;; Basic faces
    `(default ((t (:foreground ,fg :background ,bg))))
    `(cursor ((t (:background ,cursor))))
-   `(region ((t (:background ,bright-black))))
-   `(highlight ((t (:background ,bright-black))))
+   `(region ((t (:background "#3a2030" :foreground ,fg))))
+   `(highlight ((t (:background "#3a2030"))))
    `(hl-line ((t (:background "#3a2030"))))
    `(fringe ((t (:background ,bg))))
    `(mode-line ((t (:foreground ,fg :background "#150b11"))))
@@ -97,7 +96,7 @@
 
    ;; Company mode
    `(company-tooltip ((t (:background "#1E0F18" :foreground ,fg))))
-   `(company-tooltip-selection ((t (:background ,bg-darker :foreground ,bg))))
+   `(company-tooltip-selection ((t (:background ,blue :foreground ,bg))))
    `(company-tooltip-common ((t (:foreground ,cyan :weight bold))))
 
    ;; Inline completion (corfu, company-preview, etc.)
