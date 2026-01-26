@@ -200,6 +200,12 @@ in {
         example = true;
         description = "Whether to enable or disable the builtin TempleOS Theme/Colorscheme";
       };
+      installAll = mkOption {
+        type = types.bool;
+        default = false;
+        example = true;
+        description = "Install all themes for Manual Application";
+      };
     };
     exwm = {
       enable = mkOption {
@@ -270,13 +276,13 @@ in {
     };
 
     # Install Themes
-    home.file.".nixmacs/themes/fuwamoco-theme.el" = mkIf cfg.themes.fuwamoco {
+    home.file.".nixmacs/themes/fuwamoco-theme.el" = mkIf (cfg.themes.fuwamoco || cfg.themes.installAll) {
       source = ./config/themes/fuwamoco-theme.el;
     };
-    home.file.".nixmacs/themes/marnie-theme.el" = mkIf cfg.themes.marnie {
+    home.file.".nixmacs/themes/marnie-theme.el" = mkIf (cfg.themes.marnie || cfg.themes.installAll) {
       source = ./config/themes/marnie-theme.el;
     };
-    home.file.".nixmacs/themes/temple-os-theme.el" = mkIf cfg.themes.templeos {
+    home.file.".nixmacs/themes/temple-os-theme.el" = mkIf (cfg.themes.templeos || cfg.themes.installAll) {
       source = ./config/themes/temple-os-theme.el;
     };
 
