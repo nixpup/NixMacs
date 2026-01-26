@@ -56,6 +56,13 @@ Enable the Beacon Line-Highlighter Globally.
 #+BEGIN_SRC emacs-lisp
 (beacon-mode 1)
 #+END_SRC
+** Resize Split Panes
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-S-<up>") 'shrink-window)
+(global-set-key (kbd "C-S-<down>") 'enlarge-window)
+(global-set-key (kbd "C-S-<left>") 'shrink-window-horizontally)
+(global-set-key (kbd "C-S-<right>") 'enlarge-window-horizontally)
+#+END_SRC
 ** Doom-Modeline
 Enable and automatically load doom-modeline-mode.
 #+BEGIN_SRC emacs-lisp
