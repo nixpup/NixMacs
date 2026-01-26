@@ -222,6 +222,7 @@ in {
           cfg.themes.marnie
           cfg.themes.gruvbox
           cfg.themes.templeos
+          cfg.themes.cappuccinoNoir
         ]) <= 1;
         message = "Error: Only one Theme/Colorscheme can be enabled at a time!";
       }
@@ -264,6 +265,7 @@ in {
       text = builtins.readFile customEorg
         + optionalString cfg.themes.fuwamoco fuwamocoThemeOrg
         + optionalString cfg.themes.marnie marnieThemeOrg
+        + optionalString cfg.themes.cappuccinoNoir cappuccinoNoirThemeOrg
         + optionalString cfg.themes.gruvbox gruvboxThemeOrg
         + optionalString cfg.themes.templeos templeosThemeOrg;
     };
