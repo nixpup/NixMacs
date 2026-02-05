@@ -734,6 +734,35 @@ A few sane fixes to make it more comfortable to use the M-x term terminal inside
   (global-set-key (kbd "M->") #'mc/mark-next-like-this)
   (global-set-key (kbd "M-<") #'mc/mark-previous-like-this))
 #+END_SRC
+** Font Height Keybinds
+Bind `C-x C-S-Minus` and `C-x C-S-=` to decrease and increase the font height.
+#+BEGIN_SRC emacs-lisp
+(defun my/font-increase ()
+  "Increase default font height by 10."
+  (interactive)
+  (let ((current (face-attribute 'default :height)))
+    (set-face-attribute 'default nil :height (+ current 10))))
+
+(defun my/font-decrease ()
+  "Decrease default font height by 10."
+  (interactive)
+  (let ((current (face-attribute 'default :height)))
+    (set-face-attribute 'default nil :height (- current 20))))
+
+(global-set-key (kbd "C-x C-S-=") #'my/font-increase)
+(global-set-key (kbd "C-x C-_") #'my/font-decrease)
+#+END_SRC
+** Toggle Line Numbers
+#+BEGIN_SRC emacs-lisp
+(defun my/toggle-line-numbers ()
+  "Toggle global display of line numbers."
+  (interactive)
+  (if global-display-line-numbers-mode
+      (global-display-line-numbers-mode -1)
+    (global-display-line-numbers-mode 1)))
+
+(global-set-key (kbd "C-x C-S-n") #'my/toggle-line-numbers)
+#+END_SRC
 ** Org Insert Helper
 The org insert helper is what we use to show the available options defined previously to insert org and LaTeX snippets for convenience.
 #+BEGIN_SRC emacs-lisp
